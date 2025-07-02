@@ -33,6 +33,4 @@ jobs:
       - name: Run Helm Publish Composite Action
         uses: ./.github/actions/helm-publish
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          chart_name: ${{ inputs.chart_name }}
-          chart_version: ${{ inputs.chart_version }}
+          token: ${{ secrets.GHCR_PAT }}
