@@ -1,0 +1,32 @@
+name: "Helm Publish"
+description: "Package and push Helm chart"
+
+inputs:
+  token:
+    description: "GitHub token"
+    required: true
+  chart_name:
+    description: "Name of Helm chart folder"
+    required: true
+  chart_version:
+    description: "Version of Helm chart"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Helm lint
+      run: helm lint ${{ inputs.chart_name }}
+      shell: bash
+
+    - name: Package Helm chart
+      run: helm package ${{ inputs.chart_name }}
+      shell: bash
+
+    - name: Log in to GHCR
+      run: echo "${{ inputs.token }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+      shell: bash
+
+    - name: Push Helm chart
+      run: helm push ${{ inputs.chart_name }}-${{ inputs.chart_version }}.tgz oci://ghcr.io/francsco99
+      shell: bash

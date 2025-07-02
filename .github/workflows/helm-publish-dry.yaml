@@ -1,0 +1,38 @@
+name: v1 Publish Helm Chart Dry
+
+on:
+  workflow_call:
+    inputs:
+      chart_name:
+        required: true
+        type: string
+      chart_version:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.14.0
+
+      - name: Run Helm Publish Composite Action
+        uses: ./.github/actions/helm-publish
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          chart_name: ${{ inputs.chart_name }}
+          chart_version: ${{ inputs.chart_version }}
