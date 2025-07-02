@@ -22,7 +22,7 @@ runs:
       shell: bash
       
     - name: Helm lint
-      run: helm lint ${{ inputs.chart_name }}
+      run: helm lint .
       shell: bash
 
     - name: Package Helm chart
