@@ -33,7 +33,7 @@ runs:
       shell: bash
 
     - name: Log in to GHCR
-      run: echo "${{ inputs.token }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+      run: echo "${{ secrets.GHCR_PAT }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
     - name: Push Helm chart
