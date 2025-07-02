@@ -30,4 +30,5 @@ jobs:
         uses: ./.github/actions/helm-publish
         with:
           token: ${{ secrets.GHCR_PAT }}
-          version: ${{ inputs.version }}   
+          version: ${{ inputs.version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

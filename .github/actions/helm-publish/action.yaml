@@ -5,6 +5,9 @@ inputs:
   token:
     description: "GitHub PAT"
     required: true
+  github_token:
+    description: "GitHub Token to push chart"
+    required: true
 
 runs:
   using: "composite"
@@ -85,7 +88,7 @@ runs:
     - name: Commit and push changes
       if: steps.bump_version.outputs.new_version != ''
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
         NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
       run: |
         git config user.name  "github-actions[bot]"
