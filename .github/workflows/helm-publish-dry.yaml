@@ -6,7 +6,9 @@ on:
       branch:
         required: true
         type: string
-
+      version:
+        required: true
+        type: string # 'major', 'minor', 'patch'
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -28,3 +30,4 @@ jobs:
         uses: ./.github/actions/helm-publish
         with:
           token: ${{ secrets.GHCR_PAT }}
+          version: ${{ inputs.version }}   

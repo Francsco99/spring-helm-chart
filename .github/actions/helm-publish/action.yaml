@@ -9,6 +9,48 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Bump Chart version
+      id: bump_version
+      if: ${{ inputs.version }}
+      shell: bash
+      env:
+        INCREMENT: ${{ inputs.version }}   # deve valere "major"|"minor"|"patch"
+      run: |
+        # Estrai la versione corrente
+        OLD=$(grep '^version:' Chart.yaml | awk '{print $2}')
+        # Splitta in major/minor/patch
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD"
+
+        # Incrementa e resetta i componenti inferiori
+        case "$INCREMENT" in
+          major)
+            MAJOR=$((MAJOR+1))
+            MINOR=0
+            PATCH=0
+            ;;
+          minor)
+            MINOR=$((MINOR+1))
+            PATCH=0
+            ;;
+          patch)
+            PATCH=$((PATCH+1))
+            ;;
+          *)
+            echo "Errore: INCREMENT deve essere major, minor o patch (ora è '$INCREMENT')"
+            exit 1
+            ;;
+        esac
+
+        # Ricompone la versione nuova
+        NEW="$MAJOR.$MINOR.$PATCH"
+        echo "Aggiorno Chart.yaml: versione $OLD → $NEW"
+
+        # Sostituisci nel Chart.yaml
+        sed -i "s/^version:.*/version: $NEW/" Chart.yaml
+
+        # Rendi la nuova versione disponibile come output del job
+        echo "new_version=$NEW" >> $GITHUB_OUTPUT
+
     - name: Debug workspace
       run: |
         echo "PWD: $(pwd)"
@@ -38,4 +80,17 @@ runs:
       run: |
         echo "Pushing ${{ env.TAR_CHART }}"
         helm push ${{ env.TAR_CHART }} oci://ghcr.io/francsco99
+      shell: bash
+
+    - name: Commit and push changes
+      if: steps.bump_version.outputs.new_version != ''
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NEW_VERSION: ${{ steps.bump_version.outputs.new_version }}
+      run: |
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add Chart.yaml
+        git commit -m "bumped version to $NEW_VERSION"
+        git push origin HEAD:${{ github.ref }}
       shell: bash

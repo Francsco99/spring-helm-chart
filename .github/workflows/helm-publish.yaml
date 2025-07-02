@@ -5,6 +5,17 @@ run-name: Publish Helm Chart on branch -> ${{ inputs.branch }}
 on:
   workflow_dispatch:
     inputs:
+
+      version:
+        description: "Choose which version to publish"
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+        default: patch
+
       branch:
         description: "Branch"
         required: true
@@ -18,4 +29,5 @@ jobs:
       packages: write
     with:
       branch: ${{ inputs.branch }}
+      version: ${{ inputs.version }}
     secrets: inherit
