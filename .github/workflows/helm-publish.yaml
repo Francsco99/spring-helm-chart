@@ -8,7 +8,7 @@ on:
       chart_name:
         description: "Helm chart folder"
         required: true
-        default: spring-helm-chart
+        default: "."
       chart_version:
         description: "Chart version (e.g. 0.1.0)"
         required: true
