@@ -1,18 +1,10 @@
 name: v1 Publish Helm Chart
 
-run-name: Publish Helm Chart -> ${{ inputs.chart_name }} v${{ inputs.chart_version }} on branch -> ${{ inputs.branch }}
+run-name: Publish Helm Chart on branch -> ${{ inputs.branch }}
 
 on:
   workflow_dispatch:
     inputs:
-      chart_name:
-        description: "Helm chart folder"
-        required: true
-        default: spring-helm-chart
-      chart_version:
-        description: "Chart version (e.g. 0.1.0)"
-        required: true
-        default: "0.1.0"
       branch:
         description: "Branch"
         required: true
@@ -25,7 +17,5 @@ jobs:
       contents: write
       packages: write
     with:
-      chart_name: ${{ inputs.chart_name }}
-      chart_version: ${{ inputs.chart_version }}
       branch: ${{ inputs.branch }}
     secrets: inherit

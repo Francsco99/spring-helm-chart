@@ -3,40 +3,38 @@ description: "Package and push Helm chart"
 
 inputs:
   token:
-    description: "GitHub secret"
+    description: "GitHub PAT"
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Debug PWD
+    - name: Debug workspace
       run: |
-        echo "Current directory:"
-        pwd
-        echo "Contents:"
+        echo "PWD: $(pwd)"
+        echo "Repo contents:"
         ls -la
       shell: bash
 
-    - name: Helm lint
+    - name: Lint chart
       run: helm lint .
       shell: bash
 
-    - name: Helm package
+    - name: Package chart
       id: package
       run: |
         OUTPUT=$(helm package .)
         echo "$OUTPUT"
         FILE_NAME=$(echo "$OUTPUT" | grep -o '[^ ]\+\.tgz')
-        echo "📦 Chart packaged as: $FILE_NAME"
+        echo "PACKAGED_CHART=$FILE_NAME"
         echo "TAR_CHART=$FILE_NAME" >> $GITHUB_ENV
-        echo "PACKAGE_FILE=$FILE_NAME" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Log in to GHCR
       run: echo "${{ inputs.token }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: Push Helm chart
+    - name: Push chart
       run: |
         echo "Pushing ${{ env.TAR_CHART }}"
         helm push ${{ env.TAR_CHART }} oci://ghcr.io/francsco99
